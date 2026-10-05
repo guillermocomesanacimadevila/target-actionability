@@ -22,3 +22,32 @@ class TargetTractability:
 
         self.client = bigquery.Client(project=gcp_project) # client == myself!
         self.table = f"{bigquery_dataset}.target" # table for protein X
+
+    def fetch(
+            self,
+            targets: dict[str: str]
+    ) -> list[dict]:
+
+        """ {"APOE": "ENSG00000130203", ...} """
+
+        if not targets:
+            raise ValueError("Targets dictionary is empty!")
+
+        # now loop through dict
+        for gene, ens_id in targets.items():
+            if not isinstance(gene, str) or not gene.strip():
+                raise ValueError("Gene names must be non-empty strings!!!!!")
+
+            if not isinstance(ens_id, str) or not re.fullmatch(r"ENSG[0-9]{11}", ens_id):
+                raise ValueError(f"Invalid Ensembl gene ID for {gene}: {ens_id}")
+
+        # SQL query for BigQuery
+        query = f"""
+SELECT id, approvedSymbol, tractability
+FROM `open-targets-prod.platform.targets`
+WHERE id IN UNNEST(@target_ids)
+        """
+
+        return 
+
+    
