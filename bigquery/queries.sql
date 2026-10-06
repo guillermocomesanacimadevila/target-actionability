@@ -11,6 +11,7 @@ WHERE id IN UNNEST(@target_ids)
 SELECT
     t.id,
     t.approvedSymbol,
+    t.biotype,
     assessment.element.*
 FROM `bigquery-public-data.open_targets_platform.target` AS t
 CROSS JOIN UNNEST(t.tractability.list) AS assessment
@@ -20,6 +21,7 @@ WHERE t.id IN UNNEST(@target_ids); -- ens_id
 SELECT
     t.id,
     t.approvedSymbol,
+    t.biotype,
     assessment.element.*
 FROM `bigquery-public-data.open_targets_platform.target` AS t
 CROSS JOIN UNNEST(t.tractability.list) AS assessment

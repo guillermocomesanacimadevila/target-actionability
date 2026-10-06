@@ -46,6 +46,7 @@ class TargetTractability:
 SELECT 
     t.id,
     t.approvedSymbol, 
+    t.biotype,
     assessment.element.*
 FROM `bigquery-public-data.open_targets_platform.target` AS t
 CROSS JOIN UNNEST(t.tractability.list) AS assessment
