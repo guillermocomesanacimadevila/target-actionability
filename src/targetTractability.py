@@ -43,10 +43,17 @@ class TargetTractability:
 
         # SQL query for BigQuery -> we have to refer to the ENS ID
         query = f"""
-SELECT 
+SELECT
     t.id,
-    t.approvedSymbol, 
+    t.approvedSymbol,
     t.biotype,
+    ARRAY_TO_STRING(
+      ARRAY(
+        SELECT p.element.id
+        FROM UNNEST(t.proteinIds.list) AS p
+        WHERE p.element.source = "uniprot_swissprot"
+      ), "|"
+    ) AS uniprot_id,
     assessment.element.*
 FROM `bigquery-public-data.open_targets_platform.target` AS t
 CROSS JOIN UNNEST(t.tractability.list) AS assessment
