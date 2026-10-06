@@ -13,7 +13,7 @@ class TargetTractability:
     def __init__(
             self,
             gcp_project: str,
-            bigquery_dataset: str = "open-targets-prod.platform"
+            bigquery_dataset: str = "open-targets-prod.platform" # bigquery-public-data.
     ):
         
         # make sure that if bigquery_dataset arg != same -> error
@@ -41,13 +41,30 @@ class TargetTractability:
             if not isinstance(ens_id, str) or not re.fullmatch(r"ENSG[0-9]{11}", ens_id):
                 raise ValueError(f"Invalid Ensembl gene ID for {gene}: {ens_id}")
 
-        # SQL query for BigQuery
+        # SQL query for BigQuery -> we have to refer to the ENS ID
         query = f"""
-SELECT id, approvedSymbol, tractability
-FROM `open-targets-prod.platform.targets`
-WHERE id IN UNNEST(@target_ids)
+SELECT 
+    t.id,
+    t.approvedSymbol, 
+    assessment.element.*
+FROM `bigquery-public-data.open_targets_platform.target` AS t
+CROSS JOIN UNNEST(t.tractability.list) AS assessment
+WHERE t.id IN UNNEST(@target_ids)
+ORDER BY t.approvedSymbol;
         """
 
-        return 
+        # supply ENS_ID to @target_ids
+        config = bigquery.QueryJobConfig(
+            query_parameters = [
+                bigquery.ArrayQueryParameter(
+                    "target_ids", 
+                    "STRING", # specify data_type
+                    list(targets.values()) # ENS_ids
+                )
+            ]
+        )
 
+        query_job = self.client.query(query, job_config=config)
+        rows = query_job.result()
+        return [dict(row.items()) for row in rows]
     

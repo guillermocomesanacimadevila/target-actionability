@@ -1,0 +1,4 @@
+Dockerfile linguist-language=Dockerfile linguist-detectable=true
+Dockerfile.* linguist-language=Dockerfile linguist-detectable=true
+*.dockerfile linguist-language=Dockerfile linguist-detectable=true
+*.sql linguist-language=SQL linguist-detectable=true
